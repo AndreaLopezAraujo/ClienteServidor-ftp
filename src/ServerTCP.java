@@ -101,7 +101,7 @@ public class ServerTCP {
 	                      	}
 	                    	if(fr!=null)
 	                    	{
-	                    		System.out.println("holi");
+	                    		System.out.println("Archivo");
 	                    		byte b[] = new 	byte[104857600];
 	                      		fr.read(b, 0, b.length);
 	                      		long startTime = System.currentTimeMillis();
@@ -109,12 +109,14 @@ public class ServerTCP {
 	                      		output.write(hasher(b));
 	                      		boolean mensaje=false;
 	                      		String mensajeRecibido = entrada.readUTF();
+	                      		System.out.println("Esperando respuesta del cliente");
 	                      		while(!mensaje)
 	                      		{
 	                      			mensajeRecibido = entrada.readUTF();
 	                      			if(mensajeRecibido!=null)
 	                      			{
 	                      				mensaje=true;
+	                      				System.out.println("Respuesta obtenida");
 	                      			}
 	                      		}
 	                      		System.out.println(mensajeRecibido);

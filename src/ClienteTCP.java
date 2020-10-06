@@ -71,7 +71,7 @@ class ClienteTCP{
 		OutputStream output = socket.getOutputStream(); 
 		DataOutputStream salida = new DataOutputStream(output);
 
-		byte[] b = new byte[8192];
+		byte[] b = new byte[104857600];
 		FileOutputStream fr = new FileOutputStream("./data/ArchivoCliente" + (int)(Math.random()*100) +".txt");
 
 		is.read(b, 0, b.length);
@@ -91,6 +91,11 @@ class ClienteTCP{
 		{
 
 			salida.writeUTF("Archivo entregado e integridad del archivo verificada");
+		}
+		else
+		{
+
+			salida.writeUTF("error");
 		}
 	}
 }
