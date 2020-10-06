@@ -27,12 +27,13 @@ class ClienteTCP{
 			String mensajeRecibido = entrada.readUTF();
 
 			if(mensajeRecibido.equals("Hola"))
-			{  	 
+			{
 				salida.writeUTF("Listo para recibir datos");
 			}
 
 			mensajeRecibido = entrada.readUTF();
-			System.out.println("Cliente nmo: "+mensajeRecibido);
+			System.out.println("Cliente numero: "+mensajeRecibido);
+			System.out.println("Listo para recibir datos");
 			m = mensajeRecibido;
 			
 			
@@ -47,17 +48,18 @@ class ClienteTCP{
 	
 
 	public void funcMandar( int i, String string2, Socket socket) throws IOException, NoSuchAlgorithmException {
-		
+		System.out.println("------Informacion del archivo------");
+		System.out.println("Numero de clientes: "+i);
+		System.out.println("Tamaño del archivo: "+string2);
 		InputStream is = socket.getInputStream();
 		DataInputStream entrada = new DataInputStream(is);
 		OutputStream output = socket.getOutputStream(); 
 		DataOutputStream salida = new DataOutputStream(output);
-		
-		
+		salida.writeUTF("Voy a enviar datos");
 		if(Integer.parseInt(m) == 1)
 		{
 			String ss = "250MB".equals(string2) ? "2" : "1";
-			salida.writeUTF(i+","+ss);   
+			salida.writeUTF(i+","+ss); 
 		}
 
 		

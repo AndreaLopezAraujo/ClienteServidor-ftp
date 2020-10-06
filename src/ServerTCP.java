@@ -19,6 +19,7 @@ public class ServerTCP {
 	 	
 	        	ServerSocket serverSocket = new ServerSocket(8080);
 	            System.out.println("Server is listening on port " + 8080);
+	            String h="";
 	            
 	            while(true)
 	            {
@@ -40,21 +41,18 @@ public class ServerTCP {
 	        	      		    salida.writeUTF("Hola");
 	        	      		    
 	        	      		    salida.writeUTF(""+clients.size());
-	        	      		    entrada.readUTF();
-	        	      		    
 	        	      		    socket.setSoTimeout(4000);
-                    			       
 	        	                }
                     		x++; 
                     	}
                     	if(x != 0)
     	            	{
                     		DataInputStream entrada = new DataInputStream(clients.get(0).getInputStream());
-    	            		String h = entrada.readUTF();
+                    		h=entrada.readUTF();
     	            		String[] w = h.split(",");
     						String opcion = w[1];
     		      		    String numClientesAMandar =  w[0];
-    		      		    
+    		      		    System.out.println("se va a enviar");
     		      		    envio(opcion,numClientesAMandar);
     		      		    x = 0;
     	            	}
@@ -65,11 +63,13 @@ public class ServerTCP {
 	                    
 	                
 	}
-	            	    
+	public static void enviarMensaje(String solicitud) {
+		
+	}
 	  
 	  public static void envio(String fileSelection,String numClientes) throws IOException
 	  {
-           
+		  System.out.println("holi");
           for(int x = 0; x < Integer.parseInt(numClientes);x++)
           {
         	  OutputStream output = clients.get(x).getOutputStream(); 
