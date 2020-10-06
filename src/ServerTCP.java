@@ -11,7 +11,7 @@ public class ServerTCP {
 
 	static List<Socket> clients = new ArrayList<Socket>();
 	static BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
-	Log log;
+	static Log log;
 	static int x = 0;
 
 	public static void main(String[] args) throws IOException {
@@ -90,7 +90,8 @@ public class ServerTCP {
 						}
 						if (fr != null) {
 							System.out.println("Archivo");
-							byte b[] = new byte[104857600];
+							int tamaño=104857600;
+							byte b[] = new byte[tamaño];
 							fr.read(b, 0, b.length);
 							long startTime = System.currentTimeMillis();
 							output.write(b, 0, b.length);
@@ -108,7 +109,9 @@ public class ServerTCP {
 							System.out.println(mensajeRecibido);
 							long endTime = System.currentTimeMillis();
 							System.out.println("Tiempo transcurrido: " + (endTime - startTime) + " ms.");
-							log=new Log(mensajeRecibido, j, j, j, j, j, j);
+							int time=(int) (endTime - startTime);
+							String hash=""+hasher(b);
+							log=new Log(ar, (int) (Math.random() * 100) , time, b.length, tamaño, hash);
 						} else {
 							System.out.println("Opcion incorrecta");
 						}

@@ -9,15 +9,15 @@ public class Log {
 	int cliente;
 	boolean exito;
 	int tiempo;
-	int hashCliente;
-	int hashServidor;
+	String hashCliente;
+	String hashServidor;
 	int paquetesEnviados;
 	int paquetesRecividos;
 	int bytesEnviados;
 	int bytesResividos;
 
-	Log(String archivo, int cliente, int tiempo, int paquetesEnviados, int paquetesRecividos, int bytesEnviados,
-			int hashServidor) {
+	Log(String archivo, int cliente, int tiempo, int paquetesEnviados, int bytesEnviados,
+			String hashServidor) {
 		dia = new Date();
 		this.archivo = archivo;
 		this.cliente = cliente;
@@ -29,7 +29,7 @@ public class Log {
 
 	}
 
-	public void clienteLog(int paquetesRecividos, int bytesResividos, int hashCliente) {
+	public void clienteLog(int paquetesRecividos, int bytesResividos, String hashCliente) {
 		this.hashCliente = hashCliente;
 		this.paquetesRecividos = paquetesRecividos;
 		this.bytesResividos = bytesResividos;
