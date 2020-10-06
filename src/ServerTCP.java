@@ -28,8 +28,7 @@ public class ServerTCP {
                     		enviarMensaje();
     	            	}
 	            		Socket socket = serverSocket.accept();
-	            		while (socket!=null)
-                    	{ 
+	            		while(socket!=null) {
                     		clients.add(socket);		
                     		System.out.println("new CLient" + clients.size());
                     		
@@ -46,8 +45,12 @@ public class ServerTCP {
 	        	      		    salida.writeUTF(""+clients.size());
 	        	      		    socket.setSoTimeout(4000);
 	        	                }
-	        	                x++; 
-                    	}
+	        	                x++;
+	        	                if(clients.size()==0)
+	        	                {
+	        	                	x=0;
+	        	                }
+	            	}
                     }
                     catch (IOException e) {
                     }
@@ -57,7 +60,7 @@ public class ServerTCP {
 	}
 	public static void enviarMensaje() throws IOException {
 		System.out.println("entro");
-		DataInputStream entrada = new DataInputStream(clients.get(1).getInputStream());
+		DataInputStream entrada = new DataInputStream(clients.get(0).getInputStream());
 		String h=entrada.readUTF();
 		if(h!=null)
 		{
@@ -73,33 +76,33 @@ public class ServerTCP {
 	  
 	  public static void envio(String fileSelection,String numClientes) throws IOException
 	  {
-		  System.out.println("holi");
           for(int j = 0; j < Integer.parseInt(numClientes);j++)
           {
-        	  OutputStream output = clients.get(j).getOutputStream(); 
-        	  DataInputStream entrada = new DataInputStream(clients.get(j).getInputStream());
+        	  OutputStream output = clients.get(0).getOutputStream(); 
+        	  DataInputStream entrada = new DataInputStream(clients.get(0).getInputStream());
         	  new Thread(new Runnable() {
 	                public void run() {
 	                    try {
 	                    	FileInputStream fr =null;
-	                    	if(Integer.parseInt(numClientes) > clients.size())
-	                  		{
-	                  			System.out.println("Numero de clientes menor al especificado.");
-	                  		}
-	                  		else if(Integer.parseInt(fileSelection) == 1)
+	                  		if(Integer.parseInt(fileSelection) == 1)
 	                      	{
-	                  			System.out.println("Es 1");
+	                  			//System.out.println("Es 1");
 	                      		fr = new FileInputStream("./data/100MiB.txt");
 	                      	}
 	                      	else if(Integer.parseInt(fileSelection) == 2 )
 	                      	{
 	                      		//InputStream input = clients.get(x).getInputStream();  	                   
-	                      		System.out.println("Es 2");
+	                      		//System.out.println("Es 2");
 	                      		fr = new FileInputStream("./data/250MiB.txt");
+	                      	}
+	                      	else
+	                      	{
+	                      		System.out.println("Opcion incorrecta");
 	                      	}
 	                    	if(fr!=null)
 	                    	{
-	                    		byte b[] = new 	byte[8192];
+	                    		System.out.println("holi");
+	                    		byte b[] = new 	byte[104857600];
 	                      		fr.read(b, 0, b.length);
 	                      		long startTime = System.currentTimeMillis();
 	                      		output.write(b, 0, b.length);
