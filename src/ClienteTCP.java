@@ -55,17 +55,12 @@ class ClienteTCP{
 		DataInputStream entrada = new DataInputStream(is);
 		OutputStream output = socket.getOutputStream(); 
 		DataOutputStream salida = new DataOutputStream(output);
-		salida.writeUTF("Voy a enviar datos");
-		if(Integer.parseInt(m) == 1)
-		{
-			String ss = "250MB".equals(string2) ? "2" : "1";
-			salida.writeUTF(i+","+ss); 
+		String ss = "250MB".equals(string2) ? "2" : "1";
+		salida.writeUTF(i+","+ss); 
+		System.out.println("mensaje enviado");
+		funcRecibir( socket);
 		}
 
-		
-		
-		
-	}
 	
 	
 	
