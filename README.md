@@ -1,2 +1,0 @@
-# ClienteServidor-ftp
- 
