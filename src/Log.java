@@ -9,6 +9,7 @@ public class Log {
 	int cliente;
 	boolean exito;
 	int tiempo;
+	int num;
 	String hashCliente;
 	String hashServidor;
 	int paquetesEnviados;
