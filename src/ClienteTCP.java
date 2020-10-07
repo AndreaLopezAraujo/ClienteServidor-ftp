@@ -12,6 +12,7 @@ class ClienteTCP {
 	public final static String HOLA = "HOLA";
 	public static int puerto = 29000;
 	public final static String IP = "localhost";
+	static int id=0;
 	
 	public static String calcMD5(String path) throws Exception{
         byte[] buffer = new byte[8192];
@@ -23,13 +24,14 @@ class ClienteTCP {
         }finally{
             dis.close();
         }
-
+        id=(int) Math.random()*25;
         byte[] bytes = md.digest();
 
         return DatatypeConverter.printBase64Binary(bytes);
 	}
 
 	public static void main(String[] args){
+		id=(int) (Math.random()*25+1);
 	    InputStream in;
 	    int bufferSize=0;
 	    String linea;
@@ -58,7 +60,8 @@ class ClienteTCP {
 			
 	        // Recibe el nombre del archivo que se va a recibir y recibe el archivo
 	        String name = recibido.readUTF();
-	        OutputStream output = new FileOutputStream("./data/recibido_" + name);
+	        String ar="./data/recibido_del_cliente_"+ id+"_el_archivo_"+ name;
+	        OutputStream output = new FileOutputStream(ar);
 	        System.out.println("El nombre del archivo es " + name);
 	        pw.println(OK);
 	        long size = recibido.readLong();
@@ -72,12 +75,13 @@ class ClienteTCP {
 	            System.out.println("Recibiendo el archivo" + read);
 	        }
 	        output.close();
-	        System.out.println("Se termino de recibir el archivo");
+	        System.out.println("Se termino de recibir el archivo"+id);
+	        
 	        pw.println(OK);
 	        // Recibe el hash del archivo y lo compara con el hash
 	        linea = recibido.readUTF();
 	        System.out.println("El hash MD5 recibido es: " + linea);
-	        if(linea.equals(calcMD5("./data/recibido_" + name))) {
+	        if(linea.equals(calcMD5(ar))) {
 	        	pw.println(OK);
 	        	System.out.println("Los hash coinciden");
 	        }
