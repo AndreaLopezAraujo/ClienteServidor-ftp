@@ -1,1 +1,3 @@
-/bin/
+/bin/*
+/data/*
+.DS_Store
