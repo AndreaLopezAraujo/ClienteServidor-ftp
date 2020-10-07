@@ -23,7 +23,7 @@ public class ServerMaestroTCP {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-
+		System.out.println("Servidor Iniciado");
 		int p = 29000;
 		int numThreads = 25;
 		ThreadPoolExecutor executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(numThreads);
