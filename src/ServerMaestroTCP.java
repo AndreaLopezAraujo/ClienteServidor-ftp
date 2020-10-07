@@ -39,11 +39,13 @@ public class ServerMaestroTCP {
 			file = new File(FILE100);
 			h = calcMD5(FILE100);
 		}
-		else {
-			file = new File(FILE250);
-			h  = calcMD5(FILE250);
-		}
+//		else {
+//			file = new File(FILE250);
+//			h  = calcMD5(FILE250);
+//		}
 		
+		file = new File(FILE100);
+		h = calcMD5(FILE100);
 		// Crea el archivo de log
 		
         DateFormat df = new SimpleDateFormat("dd-MM-yy_HH-mm-ss"); 
