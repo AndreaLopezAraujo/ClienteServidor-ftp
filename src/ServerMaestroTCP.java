@@ -17,7 +17,7 @@ public class ServerMaestroTCP {
 	
 	private static ServerSocket ss;
 	static String FILE100 = "./data/100MiB.txt";
-	static String FILE250 = "./data/250MiB.txt";
+	static String FILE250 = "./data/250MiB1.txt";
 	static int numero=0;
 	
 	/**
