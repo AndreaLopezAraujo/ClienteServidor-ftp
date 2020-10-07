@@ -32,12 +32,16 @@ public class ServerMaestroTCP {
 		
 		File file;
 		
-		String h = calcMD5(FILE100);
+		String h;
 		
-		if(Math.random() > 0.5)
+		if(Math.random() > 0.5) {
 			file = new File(FILE100);
-		else
+			h = calcMD5(FILE100);
+		}
+		else {
 			file = new File(FILE250);
+			h  = calcMD5(FILE250);
+		}
 		
 		// Crea el archivo de log
 		
