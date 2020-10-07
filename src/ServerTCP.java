@@ -1,137 +1,166 @@
 import java.io.*;
 import java.net.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.DatatypeConverter;
-
-public class ServerTCP {
-
-	static List<Socket> clients = new ArrayList<Socket>();
+public class ServerTCP extends Thread{
+	
+	public static final String OK = "OK";
+	public static final String HOLA = "HOLA";
+	public static final String READY = "READY";
+	public static final String ERROR = "ERROR";
+	public static final String REC = "recibio-";
+	public static final String ENVIO = "envio-";
+	
+	static List<Socket> clients = new ArrayList<Socket>();  
 	static BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
-	static Log log;
+	static File log;
 	static int x = 0;
+	private int id;
+	private String dlg;
+	private static File file;
+	private static String hash;
+	private Socket sc = null;
+	
+	public static void init(File pFile, String pHash, File pLog) {
+		file = pFile;
+		hash = pHash;
+		log = pLog;
+	}
+	
+	public ServerTCP(int pId, Socket pSocket) {
+		id = pId;
+		sc = pSocket;
+		dlg = new String("delegado " + pId + ": ");
+	}
 
-	public static void main(String[] args) throws IOException {
+	public synchronized void escribirMensaje(String pCadena) {
 
-		ServerSocket serverSocket = new ServerSocket(8080);
-		System.out.println("Server is listening on port " + 8080);
+		try {
+			FileWriter fw = new FileWriter(log,true);
+			fw.write(pCadena + "\n");
+			fw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-		while (true) {
-			try {
-				if (x != 0) {
-					enviarMensaje();
-				}
-				Socket socket = serverSocket.accept();
-				while (socket != null) {
-					clients.add(socket);
-					System.out.println("new CLient" + clients.size());
+	}
 
-					DataInputStream entrada = new DataInputStream(socket.getInputStream());
-					OutputStream output = socket.getOutputStream();
-					DataOutputStream salida = new DataOutputStream(output);
+	public void run() {
+		String feedback;
+		String linea;
+		int count;
+		byte[] buffer = new byte[16384];
+		try {
 
-					String mensajeRecibido = entrada.readUTF();
-					if (mensajeRecibido.equals("Hola")) {
+			BufferedReader dc = new BufferedReader(new InputStreamReader(sc.getInputStream()));
+			FileInputStream fis = new FileInputStream("./data/" + file.getName());
+		    BufferedInputStream bis = new BufferedInputStream(fis);
+		    DataInputStream dis = new DataInputStream(bis);
+		    OutputStream os = sc.getOutputStream();
+	        DataOutputStream dos = new DataOutputStream(os);
 
-						salida.writeUTF("Hola");
-
-						salida.writeUTF("" + clients.size());
-						socket.setSoTimeout(4000);
-					}
-					x++;
-					if (clients.size() == 0) {
-						x = 0;
-					}
-				}
-			} catch (IOException e) {
+			/***** Fase 1: Saludo *****/
+			linea = dc.readLine();
+			if (!linea.equals(HOLA)) {
+				dos.writeUTF(ERROR);
+				dis.close();
+				sc.close();
+				throw new Exception(dlg + ERROR + REC + linea +"-terminando.");
+			} else {
+				dos.writeUTF(OK);
+				feedback = dlg + REC + linea + "-continuando.";
+				escribirMensaje(feedback);
+				System.out.println(feedback);
 			}
+
+			/***** Fase 2: Envio de el nombre del archivo *****/
+			linea = dc.readLine();
+			if (!linea.equals(READY)) {
+				dos.writeUTF(ERROR);
+				dis.close();
+				sc.close();
+				throw new Exception(dlg + ERROR + REC + linea +"-terminando.");
+			} else {
+				feedback = dlg + REC + linea + "-continuando.";
+				escribirMensaje(feedback);
+				System.out.println(feedback);
+			}
+			
+			dos.writeUTF(file.getName());
+			
+			linea = dc.readLine();
+			if (!linea.equals(OK)) {
+				dos.writeUTF(ERROR);
+				dis.close();
+				sc.close();
+				throw new Exception(dlg + ERROR + REC + linea +"-terminando.");
+			} else {
+				feedback = dlg + REC + linea + "-continuando.";
+				escribirMensaje(feedback);
+				System.out.println(feedback);
+			}
+			
+			dos.writeLong(file.length());
+			
+			/***** Fase 3: Envio de el archivo *****/
+			linea = dc.readLine();
+			if (!linea.equals(OK)) {
+				dos.writeUTF(ERROR);
+				dis.close();
+				sc.close();
+				throw new Exception(dlg + ERROR + REC + linea +"-terminando.");
+			} else {
+				feedback = dlg + REC + linea + "-continuando.";
+				escribirMensaje(feedback);
+				System.out.println(feedback);
+			}
+
+			long tiempoInicial = System.currentTimeMillis();
+	        while((count = dis.read(buffer)) > 0){
+	            dos.write(buffer, 0, count);
+	            System.out.println("Enviando datos" + count);
+	        }
+	        dos.flush();
+	        linea = dc.readLine();
+			long tiempoFinal = System.currentTimeMillis();
+			
+			/***** Fase 4: Calculo del tiempo de transferencia *****/
+			escribirMensaje("Tiempo de transferencia desde el servidor " + id + ": " + (tiempoFinal-tiempoInicial) + "ms.");
+			System.out.println("Tiempo de transferencia desde el servidor " + id + ": " + (tiempoFinal-tiempoInicial) + "ms.");
+			
+			/***** Fase 5: Envio del hash *****/
+			if (!linea.equals(OK)) {
+				dos.writeUTF(ERROR);
+				dis.close();
+				sc.close();
+				throw new Exception(dlg + ERROR + REC + linea +"-terminando.");
+			} else {
+				feedback = dlg + REC + linea + "-5continuando.";
+				escribirMensaje(feedback);
+				System.out.println(feedback);
+			}
+			
+			dos.writeUTF(hash);
+			dos.flush();
+			
+			/***** Fase 6: Validacion de la transferencia correcta *****/
+			
+			linea = dc.readLine();
+			if (!linea.equals(OK)) {
+				feedback = dlg + REC + linea + " en la transmicion -terminando.";
+				escribirMensaje(feedback);
+				System.out.println(feedback);
+			} else {
+				feedback = dlg + REC + "transmicion " + linea + "-terminando.";
+				escribirMensaje(feedback);
+				System.out.println(feedback);
+			}
+			dis.close();
+			sc.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
-	}
-
-	public static void enviarMensaje() throws IOException {
-		System.out.println("entro");
-		DataInputStream entrada = new DataInputStream(clients.get(0).getInputStream());
-		String h = entrada.readUTF();
-		if (h != null) {
-			String[] w = h.split(",");
-			String opcion = w[1];
-			String numClientesAMandar = w[0];
-			System.out.println("se va a enviar");
-			envio(opcion, numClientesAMandar);
-			x = 0;
-		}
-
-	}
-
-	public static void envio(String fileSelection, String numClientes) throws IOException {
-		for (int j = 0; j < Integer.parseInt(numClientes); j++) {
-			OutputStream output = clients.get(0).getOutputStream();
-			DataInputStream entrada = new DataInputStream(clients.get(0).getInputStream());
-			new Thread(new Runnable() {
-				public void run() {
-					try {
-						FileInputStream fr = null;
-						String ar="";
-						if (Integer.parseInt(fileSelection) == 1) {
-							// System.out.println("Es 1");
-							ar="100MiB.txt";
-							fr = new FileInputStream("./data/100MiB.txt");
-						} else if (Integer.parseInt(fileSelection) == 2) {
-							// InputStream input = clients.get(x).getInputStream();
-							// System.out.println("Es 2");
-							ar="250MiB.txt";
-							fr = new FileInputStream("./data/250MiB.txt");
-						} else {
-							System.out.println("Opcion incorrecta");
-						}
-						if (fr != null) {
-							System.out.println("Archivo");
-							int tamaño=104857600;
-							byte b[] = new byte[tamaño];
-							fr.read(b, 0, b.length);
-							long startTime = System.currentTimeMillis();
-							output.write(b, 0, b.length);
-							output.write(hasher(b));
-							boolean mensaje = false;
-							String mensajeRecibido = entrada.readUTF();
-							System.out.println("Esperando respuesta del cliente");
-							while (!mensaje) {
-								mensajeRecibido = entrada.readUTF();
-								if (mensajeRecibido != null) {
-									mensaje = true;
-									System.out.println("Respuesta obtenida");
-								}
-							}
-							System.out.println(mensajeRecibido);
-							long endTime = System.currentTimeMillis();
-							System.out.println("Tiempo transcurrido: " + (endTime - startTime) + " ms.");
-							int time=(int) (endTime - startTime);
-							String hash=""+hasher(b);
-							log=new Log(ar, (int) (Math.random() * 100) , time, b.length, tamaño, hash);
-						} else {
-							System.out.println("Opcion incorrecta");
-						}
-
-					} catch (IOException | NoSuchAlgorithmException e) {
-					}
-				}
-			}).start();
-		}
-
-	}
-
-	static byte[] hasher(byte[] b) throws NoSuchAlgorithmException {
-
-		MessageDigest md = MessageDigest.getInstance("MD5");
-		md.update(b);
-		byte[] digest = md.digest();
-		String myHash = DatatypeConverter.printHexBinary(digest).toUpperCase();
-
-		byte[] z = myHash.getBytes();
-		return z;
 	}
 }
