@@ -18,6 +18,7 @@ public class ServerMaestroTCP {
 	private static ServerSocket ss;
 	static String FILE100 = "./data/100MiB.txt";
 	static String FILE250 = "./data/250MiB.txt";
+	static int numero=0;
 	
 	/**
 	 * @param args
@@ -65,6 +66,7 @@ public class ServerMaestroTCP {
 				System.out.println("Cliente aceptado.");
 				ServerTCP d = new ServerTCP(i, sc);
 				executor.execute(d);
+				numero=i;
 				i++;
 			} catch (Exception e) {
 				ss.close();
