@@ -1,87 +1,94 @@
 import java.net.*;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-
 import javax.xml.bind.DatatypeConverter;
-
 import java.io.*;
 
 class ClienteTCP {
 
-	static String m = "0";
+	public final static String ERROR = "ERROR";
+	public static final String READY = "READY";
+	public final static String OK = "OK";
+	public final static String HOLA = "HOLA";
+	public static int puerto = 29000;
+	public final static String IP = "localhost";
+	
+	public static String calcMD5(String path) throws Exception{
+        byte[] buffer = new byte[8192];
+        MessageDigest md = MessageDigest.getInstance("MD5");
 
-	public Socket funcConect(String string) throws UnknownHostException, IOException {
+        DigestInputStream dis = new DigestInputStream(new FileInputStream(new File(path)), md);
+        try {
+            while (dis.read(buffer) > 0);
+        }finally{
+            dis.close();
+        }
 
-		Socket socket = new Socket(string, 8080);
+        byte[] bytes = md.digest();
+
+        return DatatypeConverter.printBase64Binary(bytes);
+	}
+
+	public static void main(String[] args){
+	    InputStream in;
+	    int bufferSize=0;
+	    String linea;
+		
 		try {
-
-			InputStream is = socket.getInputStream();
-			DataInputStream entrada = new DataInputStream(is);
-			OutputStream output = socket.getOutputStream();
-			DataOutputStream salida = new DataOutputStream(output);
-
-			salida.writeUTF("Hola");
-			String mensajeRecibido = entrada.readUTF();
-
-			if (mensajeRecibido.equals("Hola")) {
-				salida.writeUTF("Listo para recibir datos");
+		
+			Socket socket = new Socket(IP, puerto);
+			PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+			bufferSize = socket.getReceiveBufferSize();
+	        in = socket.getInputStream();
+	        DataInputStream recibido = new DataInputStream(in);
+	        
+	        // Salido inicial
+	        System.out.println("Enviando " + HOLA + "...");
+			pw.println(HOLA);
+			linea = recibido.readUTF();
+			System.out.println("Respuesta del servidor: " + linea);
+			if(!linea.equals(OK)){
+				socket.close();
+				throw new Exception("No hubo respuesta del servidor.");
 			}
-
-			mensajeRecibido = entrada.readUTF();
-			System.out.println("Cliente numero: " + mensajeRecibido);
-			System.out.println("Listo para recibir datos");
-			m = mensajeRecibido;
-
+			
+			// Se informa que se esta listo para recibir el archivo
+			pw.println(READY);
+			System.out.println("Listo para la recepcion del archivo");
+			
+	        // Recibe el nombre del archivo que se va a recibir y recibe el archivo
+	        String name = recibido.readUTF();
+	        OutputStream output = new FileOutputStream("./data/recibido_" + name);
+	        System.out.println("El nombre del archivo es " + name);
+	        pw.println(OK);
+	        long size = recibido.readLong();
+	        pw.println(OK);
+	        byte[] buffer = new byte[bufferSize];
+	        int read;
+	        System.out.println("Se inicia con la recepcion del archivo");
+	        while(size > 0 && (read = recibido.read(buffer)) > 0){
+	            output.write(buffer, 0, read);
+	            size-=read;
+	            System.out.println("Recibiendo el archivo" + read);
+	        }
+	        output.close();
+	        System.out.println("Se termino de recibir el archivo");
+	        pw.println(OK);
+	        // Recibe el hash del archivo y lo compara con el hash
+	        linea = recibido.readUTF();
+	        System.out.println("El hash MD5 recibido es: " + linea);
+	        if(linea.equals(calcMD5("./data/recibido_" + name))) {
+	        	pw.println(OK);
+	        	System.out.println("Los hash coinciden");
+	        }
+	        else {
+	        	pw.println(ERROR);
+	        	System.out.println("Los hash no coinciden");
+	        }
+	        socket.close();
 		} catch (Exception e) {
+			
 			e.printStackTrace();
-		}
-
-		return socket;
-
-	}
-
-	public void funcMandar(int i, String string2, Socket socket) throws IOException, NoSuchAlgorithmException {
-		System.out.println("------Informacion del archivo------");
-		System.out.println("Numero de clientes: " + i);
-		System.out.println("Tamaño del archivo: " + string2);
-		InputStream is = socket.getInputStream();
-		DataInputStream entrada = new DataInputStream(is);
-		OutputStream output = socket.getOutputStream();
-		DataOutputStream salida = new DataOutputStream(output);
-		String ss = "250MB".equals(string2) ? "2" : "1";
-		salida.writeUTF(i + "," + ss);
-		System.out.println("mensaje enviado");
-		funcRecibir(socket);
-	}
-
-	public void funcRecibir(Socket socket) throws IOException, NoSuchAlgorithmException {
-		InputStream is = socket.getInputStream();
-		DataInputStream entrada = new DataInputStream(is);
-		OutputStream output = socket.getOutputStream();
-		DataOutputStream salida = new DataOutputStream(output);
-
-		byte[] b = new byte[104857600];
-		FileOutputStream fr = new FileOutputStream("./data/ArchivoCliente" + (int) (Math.random() * 100) + ".txt");
-
-		is.read(b, 0, b.length);
-		fr.write(b, 0, b.length);
-
-		byte[] hash = new byte[32];
-		is.read(hash, 0, hash.length);
-
-		MessageDigest md = MessageDigest.getInstance("MD5");
-		md.update(b);
-		byte[] digest = md.digest();
-		String myHash = DatatypeConverter.printHexBinary(digest).toUpperCase();
-		byte[] h = myHash.getBytes();
-
-		if (Arrays.equals(h, hash)) {
-
-			salida.writeUTF("Archivo entregado e integridad del archivo verificada");
-		} else {
-
-			salida.writeUTF("error");
 		}
 	}
 }

@@ -1,0 +1,14 @@
+delegado 1: recibio-HOLA-continuando.
+delegado 1: recibio-READY-continuando.
+delegado 1: recibio-OK-continuando.
+delegado 1: recibio-OK-continuando.
+Tiempo de transferencia desde el servidor 1: 0ms.
+delegado 1: recibio-OK-5continuando.
+delegado 1: recibio-transmicion OK-terminando.
+delegado 2: recibio-HOLA-continuando.
+delegado 2: recibio-READY-continuando.
+delegado 2: recibio-OK-continuando.
+delegado 2: recibio-OK-continuando.
+Tiempo de transferencia desde el servidor 2: 0ms.
+delegado 2: recibio-OK-5continuando.
+delegado 2: recibio-transmicion OK-terminando.
