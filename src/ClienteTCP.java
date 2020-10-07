@@ -75,7 +75,7 @@ class ClienteTCP {
 	            System.out.println("Recibiendo el archivo" + read);
 	        }
 	        output.close();
-	        System.out.println("Se termino de recibir el archivo"+id);
+	        System.out.println("Se termino de recibir el archivo al cliente: "+id);
 	        
 	        pw.println(OK);
 	        // Recibe el hash del archivo y lo compara con el hash
