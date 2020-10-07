@@ -30,14 +30,14 @@ public class ServerMaestroTCP {
 		
 		// Escoge el archivo que se va a enviar
 		
-		File file = new File(FILE100);
+		File file;
 		
 		String h = calcMD5(FILE100);
 		
-//		if(Math.random() > 0.5)
-//			archivo = new File(FILE100);
-//		else
-//			archivo = new File(FILE250);
+		if(Math.random() > 0.5)
+			file = new File(FILE100);
+		else
+			file = new File(FILE250);
 		
 		// Crea el archivo de log
 		

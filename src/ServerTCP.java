@@ -122,6 +122,7 @@ public class ServerTCP extends Thread{
 	            System.out.println("Enviando datos" + count);
 	        }
 	        dos.flush();
+	        linea = dc.readLine();
 			long tiempoFinal = System.currentTimeMillis();
 			
 			/***** Fase 4: Calculo del tiempo de transferencia *****/
@@ -129,7 +130,6 @@ public class ServerTCP extends Thread{
 			System.out.println("Tiempo de transferencia desde el servidor " + id + ": " + (tiempoFinal-tiempoInicial) + "ms.");
 			
 			/***** Fase 5: Envio del hash *****/
-			linea = dc.readLine();
 			if (!linea.equals(OK)) {
 				dos.writeUTF(ERROR);
 				dis.close();
