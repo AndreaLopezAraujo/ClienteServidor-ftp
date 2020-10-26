@@ -11,7 +11,7 @@ class ClienteTCP {
 	public final static String OK = "OK";
 	public final static String HOLA = "HOLA";
 	public static int puerto = 29000;
-	public final static String IP = "localhost";
+	public final static String IP = "192.168.1.12";
 	static int id=0;
 	
 	public static String calcMD5(String path) throws Exception{
